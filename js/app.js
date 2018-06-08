@@ -1,18 +1,18 @@
- /*
- * set up the event listener for a card. If a card is clicked:
- *  - display the card's symbol (put this functionality in another function that you call from this one)
- *  - add the card to a *list* of "open" cards (put this functionality in another function that you call from this one)
- *  - if the list already has another card, check to see if the two cards match
- *    + if the cards do match, lock the cards in the open position (put this functionality in another function that you call from this one)
- *    + if the cards do not match, remove the cards from the list and hide the card's symbol (put this functionality in another function that you call from this one)
- *    + increment the move counter and display it on the page (put this functionality in another function that you call from this one)
- *    + if all cards have matched, display a message with the final score (put this functionality in another function that you call from this one)
- */
+/*
+* set up the event listener for a card. If a card is clicked:
+*  - display the card's symbol (put this functionality in another function that you call from this one)
+*  - add the card to a *list* of "open" cards (put this functionality in another function that you call from this one)
+*  - if the list already has another card, check to see if the two cards match
+*    + if the cards do match, lock the cards in the open position (put this functionality in another function that you call from this one)
+*    + if the cards do not match, remove the cards from the list and hide the card's symbol (put this functionality in another function that you call from this one)
+*    + increment the move counter and display it on the page (put this functionality in another function that you call from this one)
+*    + if all cards have matched, display a message with the final score (put this functionality in another function that you call from this one)
+*/
 
- /**
- * @description Initializes the web page.
- */
-function init(){
+/**
+* @description Initializes the web page.
+*/
+function init() {
     displayStars();
     displayDeck();
 }
@@ -20,7 +20,7 @@ function init(){
 /**
  * @description Displays the deck.
  */
-function displayDeck(){
+function displayDeck() {
     buildDeck();
     shuffle(deck);
     buildCardList(deck);
@@ -29,9 +29,9 @@ function displayDeck(){
 /**
  * @description Builds the initial deck.
  */
-function buildDeck(){
+function buildDeck() {
     // Add two of each card types to the deck.
-    cardTypes.forEach(function(item, index, array){
+    cardTypes.forEach(function (item, index, array) {
         deck.push(item);
         deck.push(item);
     });
@@ -58,39 +58,152 @@ function shuffle(array) {
  * @description Adds cards to the deck list.
  * @param shuffledDeck The deck to build the list elements from.
  */
-function buildCardList(shuffledDeck){
-    shuffledDeck.forEach(function(item, index, array){
+function buildCardList(shuffledDeck) {
+    shuffledDeck.forEach(function (item, index, array) {
         // Create elements.
         let liEle = document.createElement("li");
         let iEle = document.createElement("i");
 
         // Add classes to the elements.
-        liEle.className = "card open show";
+        liEle.className = "card";
         iEle.className = `fa fa-${item}`;
 
         // Add elements to the DOM.
         deckEle.appendChild(liEle);
         liEle.appendChild(iEle);
 
-        iEle.addEventListener("click", checkCards);
+        liEle.addEventListener("click", checkCards);
     });
 }
 
-function checkCards(event){
+/**
+ * @description Checks if the current clicked cards match.
+ * @param event The click event.
+ */
+function checkCards(event) {
+    // Setup elements.
+    let elements = getCardElements(event.target.nodeName, event);
+    let cardEle = elements.cardElement;
+    let iEle = elements.itemElement;
+
+    // Increment counters.
     clickCount++;
-    event.target.parentElement.className += " open show"
-    alert(clickCount);
-    console.log(event.target.className);
+    moveCount++;
+
+    // Display card.
+    cardEle.className += " open show";
+    // Update moves.
+    movesEle.innerText = moveCount;
+    // Update stars displayed.
+    displayStars();
+
+    // Add item to matching list on initial click.
+    if (clickCount === 1) {
+        openCards.push({
+            ele: cardEle,
+        });
+    }
+    else {
+        let card = {
+            ele: cardEle,
+        };
+
+        // Check if second clicked item is already in the list indicating a match.
+        if (isMatch(card)) {
+            openCards.push(card);
+
+            // Get last two cards added to the match list.
+            let firstCard = openCards[openCards.length - 1];
+            let secondCard = openCards[openCards.length - 2];
+
+            // Update clases.
+            firstCard.ele.className += " match";
+            secondCard.ele.className += " match";
+        }
+        else {
+            // No match remove card from matching list.
+            let firstCard = openCards.pop();
+            setTimeout(resetCards, 500, firstCard, card);
+        }
+    }
+
+    // Only 2 cards can be selected per turn.
+    if (clickCount === 2)
+        clickCount = 0;
+}
+
+/**
+ * Gets the card elements depending on the element name passed in.
+ * @param elementName The element name.
+ * @param event The click event.
+ * @returns The card elements.
+ */
+function getCardElements(elementName, event){
+    let cardEle = null;
+    let iEle = null;
+
+    // Get card and item elements.
+    if(elementName === "LI"){
+        cardEle = event.target;
+        iEle = event.target.childNodes[0];
+    }
+    else{
+        cardEle = event.target.parentElement;
+        iEle = event.target;
+    }
+
+    return{
+        cardElement: cardEle,
+        itemElement: iEle,
+    }
+}
+
+/**
+ * Checks if the card passed in has a match in the match list.
+ * @param card The card to check if a match exists.
+ * @returns A boolean value indicating whether there was a match or not.
+ */
+function isMatch(card) {
+    let isMatch = false;
+
+    openCards.forEach(function (item) {
+        let itemClass = item.ele.childNodes[0].className;
+        let cardClass = card.ele.childNodes[0].className;
+
+        if (itemClass === cardClass)
+            isMatch = true;
+    });
+
+    return isMatch;
+}
+
+/**
+ * @description Resets cards to the backside.
+ * @param firstCard The first card to reset.
+ * @param secondCard The second card to reset.
+ */
+function resetCards(firstCard, secondCard){
+    firstCard.ele.className = "card";
+    secondCard.ele.className = "card";
+}
+
+/**
+ * @description Displays stars on the score panel.
+ */
+function displayStars() {
+    let starNum = getStarCount();
+    clearStars();
+    buildStarList(starNum);
 }
 
 /**
  * @description Gets the number of stars to display on score panel.
  * @returns The number of stars to display.
  */
-function getStarCount(){
-    if(moveCount <= 16)
+function getStarCount() {
+    if (moveCount <= 16)
         return 3;
-    else if(moveCount > 16 && moveCount <= 32)
+    else if (moveCount > 16 && moveCount <= 32)
         return 2;
     else
         return 1;
@@ -100,7 +213,7 @@ function getStarCount(){
  * @description Adds stars to the score panel.
  * @param starNum The number stars to add to the score panel.
  */
-function buildStarList(starNum){
+function buildStarList(starNum) {
     for (let i = 1; i <= starNum; i++) {
         // Create elements.
         let liEle = document.createElement("li");
@@ -116,32 +229,37 @@ function buildStarList(starNum){
 }
 
 /**
- * @description Displays stars on the score panel.
+ * @description Clears stars' element content before buidling the star list.
  */
-function displayStars(){
-    let starNum = getStarCount();
-    buildStarList(starNum);
+function clearStars() {
+    starsEle.innerHTML = "";
 }
 
- let starsEle = document.getElementById("stars");
- let deckEle = document.getElementById("deck");
- let movesEle = document.getElementById("moves");
- let scorePanelEle = document.getElementById("score-panel");
- let restartEle = document.getElementById("restart");
- let moveCount = 0;
- let clickCount = 0;
- let starCount = 3;
- let cardTypes = [
-     "diamond",
-     "paper-plane-o",
-     "anchor",
-     "bolt",
-     "cube",
-     "leaf",
-     "bicycle",
-     "bomb"
- ];
- let deck = [];
+// Elements.
+const starsEle = document.getElementById("stars");
+const deckEle = document.getElementById("deck");
+const movesEle = document.getElementById("moves");
+const scorePanelEle = document.getElementById("score-panel");
+const restartEle = document.getElementById("restart");
 
- init();
+// Counters.
+let moveCount = 0;
+let clickCount = 0;
+let starCount = 3;
+
+// Card arrays.
+const cardTypes = [
+    "diamond",
+    "paper-plane-o",
+    "anchor",
+    "bolt",
+    "cube",
+    "leaf",
+    "bicycle",
+    "bomb"
+];
+let deck = [];
+let openCards = [];
+
+init();
 
