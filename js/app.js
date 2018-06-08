@@ -17,6 +17,7 @@ function init() {
     displayDeck();
 
     restartEle.addEventListener("click", restartGame);
+    setInterval(updateTimer, 1000);
 }
 
 /**
@@ -245,6 +246,22 @@ function clearStars() {
 }
 
 /**
+ * @description Updates the timer displayed on the page.
+ */
+function updateTimer()
+{
+    secondCount++;
+    let seconds = 0;
+
+    if(secondCount % 60 === 0)
+        minuteCount++;
+    else
+        seconds = secondCount % 60;
+
+    timerEle.innerText = `${minuteCount} min ${seconds} sec`;
+}
+
+/**
  * Restarts the game.
  */
 function restartGame(){
@@ -257,7 +274,10 @@ function restartGame(){
     // Update stars displayed.
     displayStars();
 
+    // Reset counters.
     clickCount = 0;
+    secondCount = 0;
+    minuteCount = 0;
 }
 
 /**
@@ -278,10 +298,13 @@ const deckEle = document.getElementById("deck");
 const movesEle = document.getElementById("moves");
 const scorePanelEle = document.getElementById("score-panel");
 const restartEle = document.getElementById("restart");
+const timerEle = document.getElementById("timer");
 
 // Counters.
 let moveCount = 0;
 let clickCount = 0;
+let secondCount = 0;
+let minuteCount = 0;
 
 // Card arrays.
 const cardTypes = [
