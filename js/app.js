@@ -196,7 +196,7 @@ function resetCards(firstCard, secondCard){
 }
 
 /**
- * @description Clears the deck element content before re-building the deck list.
+ * @description Clears the deck element's HTML content before re-building the deck list.
  */
 function clearDeck() {
     deckEle.innerHTML = "";
@@ -269,6 +269,7 @@ function clearStars(starsElement) {
  */
 function updateTimer()
 {
+    console.log(secondCount);
     secondCount++;
     let seconds = 0;
 
@@ -295,7 +296,7 @@ function restartGame(){
     movesEle.innerText = moveCount;
 
     // Update stars displayed.
-    displayStars();
+    displayStars(starsEle);
 
     // Reset counters.
     clickCount = 0;
