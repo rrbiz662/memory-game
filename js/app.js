@@ -15,6 +15,8 @@
 function init() {
     displayStars();
     displayDeck();
+
+    restartEle.addEventListener("click", restartGame);
 }
 
 /**
@@ -188,6 +190,13 @@ function resetCards(firstCard, secondCard){
 }
 
 /**
+ * @description Clears the deck element content before re-building the deck list.
+ */
+function clearDeck() {
+    deckEle.innerHTML = "";
+}
+
+/**
  * @description Displays stars on the score panel.
  */
 function displayStars() {
@@ -235,6 +244,34 @@ function clearStars() {
     starsEle.innerHTML = "";
 }
 
+/**
+ * Restarts the game.
+ */
+function restartGame(){
+    resetBoard();
+
+    // Update moves.
+    moveCount = 0;
+    movesEle.innerText = moveCount;
+
+    // Update stars displayed.
+    displayStars();
+
+    clickCount = 0;
+}
+
+/**
+ * @description Resets board to initial state.
+ */
+function resetBoard(){
+    clearDeck();
+    shuffle(deck);
+    buildCardList(deck);
+
+    // Clear open card list.
+    openCards = [];
+}
+
 // Elements.
 const starsEle = document.getElementById("stars");
 const deckEle = document.getElementById("deck");
@@ -245,7 +282,6 @@ const restartEle = document.getElementById("restart");
 // Counters.
 let moveCount = 0;
 let clickCount = 0;
-let starCount = 3;
 
 // Card arrays.
 const cardTypes = [
