@@ -1,23 +1,24 @@
-/*
-* set up the event listener for a card. If a card is clicked:
-*  - display the card's symbol (put this functionality in another function that you call from this one)
-*  - add the card to a *list* of "open" cards (put this functionality in another function that you call from this one)
-*  - if the list already has another card, check to see if the two cards match
-*    + if the cards do match, lock the cards in the open position (put this functionality in another function that you call from this one)
-*    + if the cards do not match, remove the cards from the list and hide the card's symbol (put this functionality in another function that you call from this one)
-*    + increment the move counter and display it on the page (put this functionality in another function that you call from this one)
-*    + if all cards have matched, display a message with the final score (put this functionality in another function that you call from this one)
-*/
-
 /**
 * @description Initializes the web page.
 */
 function init() {
-    displayStars();
+    displayStars(starsEle);
     displayDeck();
 
     restartEle.addEventListener("click", restartGame);
-    setInterval(updateTimer, 1000);
+    modalCancelBtnEle.addEventListener("click", cancelClick);
+    modalOkBtnEle.addEventListener("click", okClick);
+
+    timer = setInterval(updateTimer, 1000);
+}
+
+function cancelClick(){
+    modalEle.style.display = "none";
+}
+
+function okClick(){
+    modalEle.style.display = "none";
+    restartGame();
 }
 
 /**
@@ -98,7 +99,7 @@ function checkCards(event) {
     // Update moves.
     movesEle.innerText = moveCount;
     // Update stars displayed.
-    displayStars();
+    displayStars(starsEle);
 
     // Add item to matching list on initial click.
     if (clickCount === 1) {
@@ -133,6 +134,10 @@ function checkCards(event) {
     // Only 2 cards can be selected per turn.
     if (clickCount === 2)
         clickCount = 0;
+
+    // Check if user has won.
+    if(openCards.length === 16)
+        popupWinnerMsg();
 }
 
 /**
@@ -198,12 +203,26 @@ function clearDeck() {
 }
 
 /**
+ * @description Pops up modal window with winner message.
+ */
+function popupWinnerMsg()
+{
+    modalTimeEle.innerText = `${minuteCount} min ${secondCount % 60}`;
+    modalMovesEle.innerText = `${moveCount}`;
+    displayStars(modalStarsEle);
+
+    clearInterval(timer);
+
+    modalEle.style.display = "block";
+}
+
+/**
  * @description Displays stars on the score panel.
  */
-function displayStars() {
+function displayStars(starsElement) {
     let starNum = getStarCount();
-    clearStars();
-    buildStarList(starNum);
+    clearStars(starsElement);
+    buildStarList(starNum, starsElement);
 }
 
 /**
@@ -223,7 +242,7 @@ function getStarCount() {
  * @description Adds stars to the score panel.
  * @param starNum The number stars to add to the score panel.
  */
-function buildStarList(starNum) {
+function buildStarList(starNum, starsElement) {
     for (let i = 1; i <= starNum; i++) {
         // Create elements.
         let liEle = document.createElement("li");
@@ -233,7 +252,7 @@ function buildStarList(starNum) {
         iEle.className = "fa fa-star";
 
         // Add elements to the DOM.
-        starsEle.appendChild(liEle);
+        starsElement.appendChild(liEle);
         liEle.appendChild(iEle);
     }
 }
@@ -241,8 +260,8 @@ function buildStarList(starNum) {
 /**
  * @description Clears stars' element content before buidling the star list.
  */
-function clearStars() {
-    starsEle.innerHTML = "";
+function clearStars(starsElement) {
+    starsElement.innerHTML = "";
 }
 
 /**
@@ -266,6 +285,10 @@ function updateTimer()
  */
 function restartGame(){
     resetBoard();
+
+    // Reset the timer.
+    clearInterval(timer);
+    timer = setInterval(updateTimer, 1000);
 
     // Update moves.
     moveCount = 0;
@@ -299,6 +322,12 @@ const movesEle = document.getElementById("moves");
 const scorePanelEle = document.getElementById("score-panel");
 const restartEle = document.getElementById("restart");
 const timerEle = document.getElementById("timer");
+const modalEle = document.getElementById("modal");
+const modalOkBtnEle = document.getElementById("btn-ok");
+const modalCancelBtnEle = document.getElementById("btn-cancel");
+const modalTimeEle = document.getElementById("modal-time");
+const modalMovesEle = document.getElementById("modal-moves");
+const modalStarsEle = document.getElementById("modal-stars");
 
 // Counters.
 let moveCount = 0;
@@ -319,6 +348,8 @@ const cardTypes = [
 ];
 let deck = [];
 let openCards = [];
+
+let timer;
 
 init();
 
