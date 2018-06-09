@@ -1,5 +1,5 @@
 /**
-* @description Initializes the web page.
+* @description Initialize page.
 */
 function init() {
     displayStars(starsEle);
@@ -12,11 +12,19 @@ function init() {
     timer = setInterval(updateTimer, 1000);
 }
 
+/**
+ * @description Cancel button event handler.
+ */
 function cancelClick(){
+    // Hide modal window.
     modalEle.style.display = "none";
 }
 
+/**
+ * @description Ok button event handler.
+ */
 function okClick(){
+    // Hide modal window.
     modalEle.style.display = "none";
     restartGame();
 }
