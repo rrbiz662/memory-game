@@ -63,10 +63,16 @@ function shuffle(array) {
  * @param shuffledDeck The deck to build the list elements from.
  */
 function buildCardList(shuffledDeck) {
+    let id = 0;
+
     shuffledDeck.forEach(function (item, index, array) {
+        id++;
         // Create elements.
         let liEle = document.createElement("li");
         let iEle = document.createElement("i");
+
+        // Add ID to the card.
+        liEle.id = `card${id}`;
 
         // Add classes to the elements.
         liEle.className = "card";
@@ -90,6 +96,10 @@ function checkCards(event) {
     let cardEle = elements.cardElement;
     let iEle = elements.itemElement;
 
+    // Check if card has already been clicked.
+    if(matchEleByID(cardEle) !== null)
+        return;
+
     // Increment counters.
     clickCount++;
     moveCount++;
@@ -101,7 +111,7 @@ function checkCards(event) {
     // Update stars displayed.
     displayStars(starsEle);
 
-    // Add item to matching list on initial click.
+    // Add item to open card list on initial click.
     if (clickCount === 1) {
         openCards.push({
             ele: cardEle,
@@ -113,10 +123,10 @@ function checkCards(event) {
         };
 
         // Check if second clicked item is already in the list indicating a match.
-        if (isMatch(card)) {
+        if (isCardMatch(card)) {
             openCards.push(card);
 
-            // Get last two cards added to the match list.
+            // Get last two cards added to the open card list.
             let firstCard = openCards[openCards.length - 1];
             let secondCard = openCards[openCards.length - 2];
 
@@ -125,9 +135,9 @@ function checkCards(event) {
             secondCard.ele.className += " match";
         }
         else {
-            // No match remove card from matching list.
+            // No match remove card from open card list.
             let firstCard = openCards.pop();
-            setTimeout(resetCards, 500, firstCard, card);
+            setTimeout(resetCards, 250, firstCard, card);
         }
     }
 
@@ -167,11 +177,11 @@ function getCardElements(elementName, event){
 }
 
 /**
- * Checks if the card passed in has a match in the match list.
+ * Checks if the card passed in has a match in the open card list.
  * @param card The card to check if a match exists.
  * @returns A boolean value indicating whether there was a match or not.
  */
-function isMatch(card) {
+function isCardMatch(card) {
     let isMatch = false;
 
     openCards.forEach(function (item) {
@@ -183,6 +193,25 @@ function isMatch(card) {
     });
 
     return isMatch;
+}
+
+/**
+ * Gets the matching element in the open card deck if it exists.
+ * @param card The card to check if a match exists.
+ * @returns The matching element.
+ */
+function matchEleByID(card) {
+    let matchingEle = null;
+
+    openCards.forEach(function (item) {
+        let itemID = item.ele.id;
+        let cardID = card.id;
+
+        if (itemID === cardID)
+            matchingEle = item.ele;
+    });
+
+    return matchingEle;
 }
 
 /**
@@ -269,7 +298,6 @@ function clearStars(starsElement) {
  */
 function updateTimer()
 {
-    console.log(secondCount);
     secondCount++;
     let seconds = 0;
 
