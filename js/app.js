@@ -35,7 +35,7 @@ function displayDeck() {
  */
 function buildDeck() {
     // Add two of each card types to the deck.
-    cardTypes.forEach(function (item, index, array) {
+    cardTypes.forEach(function (item) {
         deck.push(item);
         deck.push(item);
     });
@@ -65,7 +65,7 @@ function shuffle(array) {
 function buildCardList(shuffledDeck) {
     let id = 0;
 
-    shuffledDeck.forEach(function (item, index, array) {
+    shuffledDeck.forEach(function (item) {
         id++;
         // Create elements.
         let liEle = document.createElement("li");
@@ -375,10 +375,9 @@ const cardTypes = [
     "bicycle",
     "bomb"
 ];
-let deck = [];
+const deck = [];
 let openCards = [];
 
 let timer;
 
 init();
-
